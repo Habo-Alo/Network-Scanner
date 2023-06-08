@@ -1,0 +1,59 @@
+	1.	Importing the required modules:
+
+from scapy.all import ARP, Ether, srp
+
+	•	This line imports the necessary modules from the Scapy library. ARP is used to create ARP request packets, Ether is used to create Ethernet frames, and srp is the function used for sending and receiving packets.
+
+	3.	Defining the network_scan() function:
+
+def network_scan(ip):
+
+	•	This line defines the network_scan() function, which takes an IP address (or IP address range) as an argument.
+
+	5.	Creating an ARP request packet:
+
+arp_request = ARP(pdst=ip)
+ether = Ether(dst="ff:ff:ff:ff:ff:ff")
+packet = ether / arp_request
+
+	•	These lines create an ARP request packet. ARP(pdst=ip) creates an ARP object with the destination IP set to the provided IP address. Ether(dst="ff:ff:ff:ff:ff:ff") creates an Ethernet frame with the destination MAC address set to the broadcast address. The ether / arp_request concatenates the Ethernet frame and the ARP request packet.
+
+	8.	Sending the packet and capturing the response:
+
+result = srp(packet, timeout=3, verbose=0)[0]
+
+	•	This line sends the constructed packet using srp(), which sends and receives packets at the layer 2 (Ethernet) level. The timeout parameter sets the maximum time to wait for a response, and verbose=0 suppresses output to the console. The [0] indexing extracts the first element of the result, which contains the sent and received packets.
+
+	11.	Extracting IP and MAC addresses from the response:
+
+clients = []
+for sent, received in result:
+    clients.append({'ip': received.psrc, 'mac': received.hwsrc})
+
+	•	These lines iterate over the sent and received packets in the result. For each pair, the source IP address (received.psrc) and source MAC address (received.hwsrc) are extracted and stored in a dictionary. This information is then appended to the clients list.
+
+	15.	Returning the scan results:
+
+return clients
+
+	•	This line returns the clients list, which contains the extracted IP and MAC addresses of devices on the network.
+
+	19.	Example usage: scanning the local network:
+
+ip_address = "192.168.1.0/24"
+scan_result = network_scan(ip_address)
+
+	•	This code sets the ip_address variable to the desired IP address range to scan. The network_scan() function is called with the IP address as an argument, and the result is stored in the scan_result variable.
+
+24-29. Displaying the scan results:
+
+if scan_result:
+    print("Scanning results:")
+    print("IP\t\t\tMAC Address")
+    print("-----------------------------------")
+    for client in scan_result:
+        print(f"{client['ip']}\t\t{client['mac']}")
+else:
+    print("No devices found.")
+
+	•	These lines check if the scan_result is not empty. If there are results, it prints a header and then loops through each client in the result, displaying the IP address and MAC address. If there are no devices found, it prints a “No devices found.” message.
